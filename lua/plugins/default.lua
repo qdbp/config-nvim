@@ -16,12 +16,16 @@ return {
     { 'nvim-tree/nvim-web-devicons' },
     {
         'rachartier/tiny-devicons-auto-colors.nvim',
+        event = "VeryLazy",
         opts = {
             colors = {
                 '#4F3BA3', '#812687', '#A23249', '#AA5400',
                 '#897D00', '#007E2D', '#008274', '#008274',
             }
-        }
+        },
+        dependencies = {
+            "nvim-tree/nvim-web-devicons"
+        },
     },
     {
         'nvim-telescope/telescope.nvim',
