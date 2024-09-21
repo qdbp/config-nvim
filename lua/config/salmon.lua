@@ -178,18 +178,18 @@ H.base_scheme = {
     Character = '@lsp.type.regexp',
     Special = '@lsp.type.regexp',
     SpecialChar = { fg = c.tone_4 },
-    Number = '@lsp.number',
-    Float = '@lsp.number',
-    Boolean = '@lsp.boolean',
+    Number = '@lsp.type.number',
+    Float = '@lsp.typenumber',
+    Boolean = '@lsp.typeboolean',
 
     -- variables
     Identifier = '@lsp.variable',
     Function = '@lsp.function',
     Metadata = '@lsp.type.decorator',
     PreProc = '@lsp.type.decorator',
-    Define = '@lsp.macro',
-    Macro = '@lsp.macro',
-    Include = '@lsp.macro',
+    Define = '@lsp.type.macro',
+    Macro = '@lsp.type.macro',
+    Include = '@lsp.type.macro',
 
     -- conrol flow
     Keyword = '@lsp.type.keyword',
@@ -205,8 +205,9 @@ H.base_scheme = {
     Type = '@lsp.type.class',
     PreCondit = '@lsp.type.keyword',
     Structure = '@lsp.type.struct',
-    Typedef = '@lsp.type',
-    Tag = '@lsp.keyword',
+    -- TODO make unique
+    Typedef = '@lsp.type.class',
+    Tag = '@lsp.type.keyword',
     Delimiter = { fg = c.fg_light }, -- unobtrusive
 
     -- meta
@@ -247,7 +248,6 @@ H.base_scheme = {
     ['@constant.macro'] = '@lsp.type.macro',
     ['@constructor'] = '@lsp.type.method',
     ['@exception'] = '@lsp.type.keyword',
-    ['@float'] = '@lsp.type.number',
     ['@function'] = '@lsp.type.function',
     ['@function.builtin'] = '@lsp.type.builtin',
     ['@function.macro'] = '@lsp.type.macro',
@@ -277,6 +277,7 @@ H.base_scheme = {
     ['@module'] = '@lsp.type.namespace',
 
     ['@number'] = '@lsp.type.number',
+    ['@number.float'] = '@lsp.type.number',
     ['@string'] = '@lsp.type.string',
     ['@string.regex'] = '@lsp.type.string',
     ['@string.escape'] = '@lsp.type.string',
@@ -305,7 +306,7 @@ H.base_theme = {
     -- basics
     Normal = { fg = c.fg_dark, bg = c.bg },
     NormalNC = { fg = c.fg },
-    WinSeparator = { fg = c.tint_1, bg = c.tint001 },
+    WinSeparator = { fg = c.dbg_3, bg = c.dbg_3 },
     Identifier = { link = 'Normal' },
     Special = { fg = c.tone_4 },
     ErrorMsg = { fg = c.pri_1 },
@@ -323,15 +324,11 @@ H.base_theme = {
     MoreMsg = { fg = c.fg, bold = true, bg = c.bg_3 },
 
     -- left of screen, gutter, and cursor rows
-    LineNr = { fg = c.fg_light },
+    LineNr = { fg = c.fg_light, bg = c.bg_3 },
     CursorLine = { bg = c.wht_4 },
     CursorLineNR = { fg = c.tone_1 },
     FoldColumn = { fg = c.tint_1, bg = c.bg_3 },
     SignColumn = { link = 'FoldColumn' },
-    GitGutterAdd = { bg = c.hl_5, fg = c.black },
-    GitGutterChange = { bg = c.hl_3, fg = c.black },
-    GitGutterDelete = { bg = c.hl_2, fg = c.black },
-    GitGutterChangeDelete = { bg = c.hl_2, fg = c.black },
 
     -- top of screen
     TabLineFill = { bg = c.bg_3, fg = c.fg },
@@ -364,16 +361,18 @@ H.base_theme = {
     DiagnosticHint = { fg = c.fg, bg = c.hl_7 },
     DiagnosticUnderlineHint = { sp = c.hl_7, underline = true },
     DiagnosticOK = { fg = c.fg, bg = c.hl_5 },
-    DiagnosticUnnecessary = 'Comment',
+    DiagnosticUnnecessary = { fg = c.fg_light, undercurl = true },
     WarningMsg = { fg = c.hyper_2 },
     -- debugging
     Breakpoint = { fg = c.hyper_2, bold = true, bg = c.wht_6 },
     BreakpointCondition = { fg = c.hyper_1, bold = true, bg = c.wht_6 },
 
     -- diffs
-    DiffAdd = {bg = c.hl_5},
-    DiffDelete = {bg = c.bg_darker },
-    DiffChanged = {bg = c.hl_7 },
+    DiffAdd = { bg = c.hl_5 },
+    DiffDelete = { bg = c.bg_darker },
+    DiffChange = { bg = c.hl_7 },
+    DiffText = 'DiffChange',
+    DiffViewSecondary = { fg = c.pri_1 },
 
     ['@diff.plus'] = { bg = c.hl_5 },
     ['@diff.delta'] = { bg = c.hl_7 },
@@ -422,16 +421,94 @@ H.nvim_tree_highlights = {
     NvimTreeImageFile = { fg = c.pri_3 },
     NvimTreeFolderIcon = 'Directory',
     NvimTreeGitNewIcon = { fg = c.pri_3 },
-    NvimTreeGitDirtyIcon = { fg = c.pri_5 },
+    NvimTreeGitDirtyIcon = { fg = c.pri_4 },
+}
+
+-- gitsigns
+H.gitsigns = {
+    GitSignsChangedelete = { bg = c.hl_3 },
+    GitSignsStagedAdd = 'GitSignsAdd',
+    GitSignsStagedDelete = 'GitSignsDelete',
+    GitSignsStagedChange = 'GitSignsChange',
+    GitSignsStagedChangedelete = 'GitSignsChangedelete',
 }
 
 -- neogit
 H.neogit_highlights = {
-    NeogitSectionHeader = { fg = c.fg_dark }
+    NeogitBranch = { fg = c.pri_5 },
+    NeogitBranchHead = { fg = c.pri_5, bold = true, underline = true },
+    NeogitChangeAdded = { fg = c.pri_3, bold = true, italic = true },
+    NeogitChangeCopied = { fg = c.pri_5, bold = true, italic = true },
+    NeogitChangeDeleted = { fg = c.pri_1, bold = true, italic = true },
+    NeogitChangeModified = { fg = c.pri_5, bold = true },
+    NeogitChangeNewFile = { fg = c.pri_3, bold = true, italic = true },
+    NeogitChangeRenamed = { fg = c.pri_5, bold = true, italic = true },
+    NeogitChangeUnmerged = { fg = c.pri_0, bold = true, italic = true },
+    NeogitChangeUnstaged = { fg = c.pri_4, bold = true, italic = true },
+    NeogitChangeUpdated = { fg = c.pri_4, bold = true, italic = true },
+    NeogitCommitViewHeader = { fg = c.fg_dark, bg = c.hl_7 },
+    NeogitCommitViewDescription = { fg = c.fg_dark, bold = true },
+    NeogitDiffAdd = { fg = c.fg_dark, bg = c.hl_5 },
+    NeogitDiffAddCursor = { fg = c.fg_dark, bg = c.hl_5 },
+    NeogitDiffAddHighlight = { fg = c.fg_dark, bg = c.hl_5 },
+    NeogitDiffAdditions = { bg = c.hl_5, fg = c.fg_dark },
+    NeogitDiffContext = { bg = c.bg_3 },
+    NeogitDiffContextCursor = { bg = c.bg_3 },
+    NeogitDiffContextHighlight = { bg = c.bg_3 },
+    NeogitDiffDelete = { fg = c.fg_light, bg = c.hl_2 },
+    NeogitDiffDeleteCursor = { fg = c.fg_dark, bg = c.hl_2 },
+    NeogitDiffDeleteHighlight = { fg = c.fg_dark, bg = c.hl_2 },
+    NeogitDiffDeletions = { bg = c.hl_2, fg = c.fg_dark },
+    NeogitDiffHeader = { fg = c.pri_5, bg = c.bg_3, bold = true },
+    NeogitDiffHeaderHighlight = { fg = c.pri_4, bg = c.bg_3, bold = true },
+    NeogitFilePath = { fg = c.pri_5 },
+    NeogitFloatHeader = { bg = c.bg_dark, bold = true },
+    NeogitFloatHeaderHighlight = { fg = c.pri_5, bg = c.bg_3, bold = true },
+    NeogitGraphAuthor = { fg = c.tone_2 },
+    NeogitGraphBlue = { fg = c.tone_5 },
+    NeogitGraphBoldBlue = { fg = c.pri_5, bold = true },
+    NeogitGraphBoldCyan = { fg = c.pri_4, bold = true },
+    NeogitGraphBoldGray = { fg = c.neutral, bold = true },
+    NeogitGraphBoldGreen = { fg = c.pri_3, bold = true },
+    NeogitGraphBoldOrange = { fg = c.pri_2, bold = true },
+    NeogitGraphBoldPurple = { fg = c.pri_0, bold = true },
+    NeogitGraphBoldRed = { fg = c.pri_1, bold = true },
+    NeogitGraphBoldWhite = { fg = c.white, bold = true },
+    NeogitGraphBoldYellow = { fg = c.pri_2, bold = true },
+    NeogitGraphCyan = { fg = c.tone_4 },
+    NeogitGraphGray = { fg = c.neutral },
+    NeogitGraphGreen = { fg = c.tone_3 },
+    NeogitGraphOrange = { fg = c.tone_2 },
+    NeogitGraphPurple = { fg = c.tone_0 },
+    NeogitGraphRed = { fg = c.pri_1 },
+    NeogitGraphWhite = { fg = c.white },
+    NeogitGraphYellow = { fg = c.tone_2 },
+    NeogitHunkHeader = { fg = c.fg_dark, bg = c.hl_7, bold = true },
+    NeogitHunkHeaderCursor = { fg = c.fg_dark, bg = c.hl_0, bold = true },
+    NeogitHunkHeaderHighlight = { fg = c.fg_dark, bg = c.hl_0, bold = true },
+    NeogitHunkMergeHeader = { fg = c.fg_dark, bg = c.hl_7, bold = true },
+    NeogitHunkMergeHeaderCursor = { fg = c.fg_dark, bg = c.hl_7, bold = true },
+    NeogitHunkMergeHeaderHighlight = { fg = c.fg_dark, bg = c.hl_0, bold = true },
+    NeogitPopupBold = { bold = true },
+    NeogitPopupActionKey = { fg = c.ult_1, bold = true },
+    NeogitPopupConfigKey = 'NeogitPopupActionKey',
+    NeogitPopupOptionKey = 'NeogitPopupActionKey',
+    NeogitPopupSwitchKey = 'NeogitPopupActionKey',
+    NeogitRemote = { fg = c.pri_3 },
+    NeogitSubtitleText = { bg = c.black },
+    NeogitSectionHeader = { fg = c.fg_dark },
+    NeogitTagDistance = { fg = c.tone_2 },
+    NeogitTagName = { fg = c.tone_0 },
+    NeogitUnmergedInto = { fg = c.pri_5, bold = true },
+    NeogitUnpulledFrom = { fg = c.pri_5, bold = true },
+    NeogitUnpushedTo = { fg = c.pri_5, bold = true },
 }
 
+M = {}
+
 -- Set highlight groups
-local function set_highlights()
+M.highlights = H
+function M.set_highlights()
     -- theme cursor correctly
     vim.cmd('set guicursor=n-v-c:block-Cursor,i:ver1')
 
@@ -447,32 +524,27 @@ local function set_highlights()
 end
 
 -- SIGNS
+S = {}
 -- Existing dap_signs definition
-local dap_signs = {
+S.dap_signs = {
     DapBreakpoint = { text = 'O', texthl = 'Breakpoint' },
-    DapBreakpointCondition = { text = 'O', texthl='BreakpointCondition' },
+    DapBreakpointCondition = { text = 'O', texthl = 'BreakpointCondition' },
     DapStopped = { text = '>', texthl = 'Breakpoint', linehl = 'DiagnosticWarn' },
-    DapBreakpointRejected = {text = 'X', texthl = 'Comment' },
+    DapBreakpointRejected = { text = 'X', texthl = 'Comment' },
 }
 
-local all_signs = {
-    dap_signs,
-    -- Add other sign groups here as needed
-}
-
-local function set_signs()
-    for _, sign_group in ipairs(all_signs) do
+M.signs = S
+function M.set_signs()
+    for _, sign_group in ipairs(S) do
         for sign_name, sign_def in pairs(sign_group) do
             vim.fn.sign_define(sign_name, sign_def)
         end
     end
 end
 
--- Call set_signs function
-set_signs()
-
-
 -- TODO call just for debugging, remove later
-set_highlights()
--- TODO how to package as plugin?
-return set_highlights
+M.set_highlights()
+M.set_signs()
+
+-- TODO package as plugin, move the above to setup step
+return M

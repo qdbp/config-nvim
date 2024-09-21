@@ -22,8 +22,10 @@ require('config.lazy')
 require('config.treesitter')
 require('config.lsp_setup')
 require('config.dap_setup')
-set_hl = require('config.salmon')
-set_hl()
+-- TODO remove when salmon is packaged
+local salmon = require('config.salmon')
+salmon.set_signs()
+salmon.set_highlights()
 
 
 -- POST-PLUGIN CONFIG
@@ -100,52 +102,21 @@ vim.api.nvim_create_autocmd("CursorMoved", {
 
 -- GIT BINDINGS
 -- blame
-vim.keymap.set({ 'n' }, '<F60>', '<cmd>BlameToggle<cr>')
--- git signs
-require('gitsigns').setup {
-    on_attach = function(bufnr)
-        local gitsigns = require('gitsigns')
+vim.keymap.set({ 'n' }, '<F60>', '<cmd>BlameToggle<cr>', { desc = 'Toggle git blame' })
+local gitsigns = require('gitsigns')
+gitsigns.setup()
+vim.keymap.set('n', '<leader>hs', gitsigns.stage_hunk, { desc = 'Stage hunk' })
+vim.keymap.set('n', '<leader>hr', gitsigns.reset_hunk, { desc = 'Reset hunk' })
+vim.keymap.set('v', '<leader>hs', function() gitsigns.stage_hunk { vim.fn.line('.'), vim.fn.line('v') } end, { desc = 'Stage selected hunk' })
+vim.keymap.set('v', '<leader>hr', function() gitsigns.reset_hunk { vim.fn.line('.'), vim.fn.line('v') } end, { desc = 'Reset selected hunk' })
+vim.keymap.set('n', '<leader>hS', gitsigns.stage_buffer, { desc = 'Stage buffer' })
+vim.keymap.set('n', '<leader>hu', gitsigns.undo_stage_hunk, { desc = 'Undo stage hunk' })
+vim.keymap.set('n', '<leader>hR', gitsigns.reset_buffer, { desc = 'Reset buffer' })
+vim.keymap.set('n', '<leader>hp', gitsigns.preview_hunk, { desc = 'Preview hunk' })
+vim.keymap.set('n', '<leader>hd', gitsigns.diffthis, { desc = 'Diff this' })
+vim.keymap.set('n', '<leader>hD', function() gitsigns.diffthis('~') end, { desc = 'Diff this (~)' })
+vim.keymap.set('n', '<leader>td', gitsigns.toggle_deleted, { desc = 'Toggle deleted' })
 
-        local function map(mode, l, r, opts)
-            opts = opts or {}
-            opts.buffer = bufnr
-            vim.keymap.set(mode, l, r, opts)
-        end
-
-        -- Navigation
-        map('n', ']c', function()
-            if vim.wo.diff then
-                vim.cmd.normal({ ']c', bang = true })
-            else
-                gitsigns.nav_hunk('next')
-            end
-        end)
-
-        map('n', '[c', function()
-            if vim.wo.diff then
-                vim.cmd.normal({ '[c', bang = true })
-            else
-                gitsigns.nav_hunk('prev')
-            end
-        end)
-
-        -- Actions
-        map('n', '<leader>hs', gitsigns.stage_hunk)
-        map('n', '<leader>hr', gitsigns.reset_hunk)
-        map('v', '<leader>hs', function() gitsigns.stage_hunk { vim.fn.line('.'), vim.fn.line('v') } end)
-        map('v', '<leader>hr', function() gitsigns.reset_hunk { vim.fn.line('.'), vim.fn.line('v') } end)
-        map('n', '<leader>hS', gitsigns.stage_buffer)
-        map('n', '<leader>hu', gitsigns.undo_stage_hunk)
-        map('n', '<leader>hR', gitsigns.reset_buffer)
-        map('n', '<leader>hp', gitsigns.preview_hunk)
-        map('n', '<leader>hd', gitsigns.diffthis)
-        map('n', '<leader>hD', function() gitsigns.diffthis('~') end)
-        map('n', '<leader>td', gitsigns.toggle_deleted)
-
-        -- Text object
-        map({ 'o', 'x' }, 'ih', ':<C-U>Gitsigns select_hunk<CR>')
-    end
-}
 -- easy search and replace
 vim.keymap.set('n', '<Leader>s', ':%s//g<Left><Left>', { noremap = true })
 
