@@ -1,225 +1,302 @@
--- PRE-PLUGIN CONFIG
-
--- SET COLORS
+-- GENERAL SETTINGS
+-- colors
 vim.o.termguicolors = true
-
--- set leaders
-vim.g.mapleader = ' '
-vim.g.maplocalleader = '\\'
-
--- set tabs
+-- leaders
+vim.g.mapleader = " "
+vim.g.maplocalleader = "\\"
+-- tabs
+-- TODO seems to glitch out with just vim.g, just spam it and hope it works!
 vim.o.expandtab = true
 vim.o.tabstop = 4
 vim.o.softtabstop = 4
 vim.o.shiftwidth = 4
-
 -- diable old file browser
 vim.g.loaded_netrw = 1
 vim.g.loaded_netrwPlugin = 1
-
--- PLUGINS
-require('config.lazy')
-require('config.treesitter')
-require('config.lsp_setup')
-require('config.dap_setup')
--- TODO remove when salmon is packaged
-local salmon = require('config.salmon')
-salmon.set_signs()
-salmon.set_highlights()
-
-
--- POST-PLUGIN CONFIG
--- GENERIC KEYBINDS
--- enforced efficiency
-vim.keymap.set('', '<Up>', '<NOP>', { silent = true })
-vim.keymap.set('', '<Down>', '<NOP>', { silent = true })
-vim.keymap.set('', '<Left>', '<NOP>', { silent = true })
-vim.keymap.set('', '<Right>', '<NOP>', { silent = true })
-vim.keymap.set('', ':', '<NOP>', {})
-vim.keymap.set('', ';', ':', {})
-vim.keymap.set({ 'n' }, 'q', '<C-w>', {})
-vim.keymap.set('n', '<S-J>', '<C-O>', { desc = 'Jump back' })
-vim.keymap.set('n', '<S-K>', '<C-I>', { desc = 'Jump forward' })
-
--- LSP BINDINGS
-vim.api.nvim_create_autocmd('LspAttach', {
-    desc = 'LSP actions',
-    callback = function()
-        local vks = vim.keymap.set
-        local map = function(mode, lhs, rhs)
-            local opts = { buffer = true }
-            vim.keymap.set(mode, lhs, rhs, opts)
-        end
-
-        -- Displays hover information about the symbol under the cursor
-        map('n', 'gk', '<cmd>lua vim.lsp.buf.hover()<cr>')
-
-        -- Jump to the definition
-        map('n', '<Leader><C-b>', '<cmd>lua vim.lsp.buf.definition()<cr>')
-
-        -- Jump to declaration
-        -- bufmap('n', 'gD', '<cmd>lua vim.lsp.buf.declaration()<cr>')
-        map('n', '<F18>', '<cmd>lua vim.lsp.buf.rename()<cr>')
-
-        -- Lists all the implementations for the symbol under the cursor
-        map('n', 'gi', '<cmd>lua vim.lsp.buf.implementation()<cr>')
-        map('n', 'gd', '<cmd>lua vim.lsp.buf.type_definition()<cr>')
-        map('n', 'gr', '<cmd>lua vim.lsp.buf.references()<cr>')
-
-        -- Displays a function's signature information
-        map('n', '<M-p>', '<cmd>lua vim.lsp.buf.signature_help()<cr>')
-
-        -- Renames all references to the symbol under the cursor
-        map('n', '<F2>', '<cmd>lua vim.lsp.buf.rename()<cr>')
-
-        -- Selects a code action available at the current cursor position
-        map({ 'n', 'v' }, '<M-CR>', '<cmd>lua vim.lsp.buf.code_action()<cr>')
-        -- bufmap('x', '<M-CR>', '<cmd>lua vim.lsp.buf.range_code_action()<cr>')
-
-        -- Show diagnostics in a floating window
-        map('n', 'gl', '<cmd>lua vim.diagnostic.open_float()<cr>')
-        -- Move to the previous diagnostic
-        map('n', '[d', '<cmd>lua vim.diagnostic.goto_prev()<cr>')
-        -- Move to the next diagnostic
-        map('n', ']d', '<cmd>lua vim.diagnostic.goto_next()<cr>')
-        -- format
-        vks('n', '<space>lf', function() vim.lsp.buf.format() end, { noremap = true })
-    end
-})
--- enable access/write highlight
-local grp = vim.api.nvim_create_augroup("lsp_document_highlight", { clear = true })
-vim.api.nvim_create_autocmd("CursorMoved", {
-    callback = function()
-        local clients = vim.lsp.get_clients()
-        if next(clients) == nil then
-            return
-        end
-        vim.lsp.buf.clear_references()
-        vim.lsp.buf.document_highlight()
-    end,
-    group = grp,
-})
-
--- GIT BINDINGS
--- blame
-vim.keymap.set({ 'n' }, '<F60>', '<cmd>BlameToggle<cr>', { desc = 'Toggle git blame' })
-local gitsigns = require('gitsigns')
-gitsigns.setup()
-vim.keymap.set('n', '<leader>hs', gitsigns.stage_hunk, { desc = 'Stage hunk' })
-vim.keymap.set('n', '<leader>hr', gitsigns.reset_hunk, { desc = 'Reset hunk' })
-vim.keymap.set('v', '<leader>hs', function() gitsigns.stage_hunk { vim.fn.line('.'), vim.fn.line('v') } end, { desc = 'Stage selected hunk' })
-vim.keymap.set('v', '<leader>hr', function() gitsigns.reset_hunk { vim.fn.line('.'), vim.fn.line('v') } end, { desc = 'Reset selected hunk' })
-vim.keymap.set('n', '<leader>hS', gitsigns.stage_buffer, { desc = 'Stage buffer' })
-vim.keymap.set('n', '<leader>hu', gitsigns.undo_stage_hunk, { desc = 'Undo stage hunk' })
-vim.keymap.set('n', '<leader>hR', gitsigns.reset_buffer, { desc = 'Reset buffer' })
-vim.keymap.set('n', '<leader>hp', gitsigns.preview_hunk, { desc = 'Preview hunk' })
-vim.keymap.set('n', '<leader>hd', gitsigns.diffthis, { desc = 'Diff this' })
-vim.keymap.set('n', '<leader>hD', function() gitsigns.diffthis('~') end, { desc = 'Diff this (~)' })
-vim.keymap.set('n', '<leader>td', gitsigns.toggle_deleted, { desc = 'Toggle deleted' })
-
--- easy search and replace
-vim.keymap.set('n', '<Leader>s', ':%s//g<Left><Left>', { noremap = true })
-
--- buffer switching
-vim.keymap.set('n', '<C-n>', ':bnext<CR>', { noremap = true, silent = true })
-vim.keymap.set('n', '<C-p>', ':bprevious<CR>', { noremap = true, silent = true })
-vim.keymap.set('n', '<C-l>', '<C-w>l', { noremap = true, silent = true })
-vim.keymap.set('n', '<C-h>', '<C-w>h', { noremap = true, silent = true })
-vim.keymap.set('n', '<C-q>', '<C-l>', { noremap = true, silent = true })
-
--- debugging
-if require('dap') then
-    local d = require('dap')
-    local w = require('dap.ui.widgets')
-    vim.keymap.set('n', '<A-b>', d.toggle_breakpoint)
-    vim.keymap.set('n', '<A-l>', d.continue)
-    vim.keymap.set('n', '<A-j>', d.step_into)
-    vim.keymap.set('n', '<A-k>', d.step_out)
-    vim.keymap.set({ 'n', 'v' }, '<A-h>', function() w.centered_float(w.hover) end)
-    vim.keymap.set({ 'n', 'v' }, '<A-s>', function() w.centered_float(w.scopes) end)
-    vim.keymap.set({ 'n', 'v' }, '<A-f>', function() w.centered_float(w.frames) end)
-end
-
--- PLUGIN KEYBINDS
--- telescope
-local builtin = require('telescope.builtin')
-vim.keymap.set('n', '<leader>ff', builtin.find_files, {})
-vim.keymap.set('n', '<leader>fg', builtin.live_grep, {})
-vim.keymap.set('n', '<leader>fb', builtin.buffers, {})
-vim.keymap.set('n', '<leader>fh', builtin.help_tags, {})
-vim.keymap.set('n', '<leader>fhl', builtin.highlights, {})
-vim.keymap.set('n', '<leader>fkm', builtin.keymaps, {})
-
--- VIM SETTINGS
+-- sessions (as recommended by autosession)
+vim.o.sessionoptions =
+  "blank,buffers,curdir,folds,help,tabpages,winsize,winpos,terminal,localoptions"
+-- generic
+vim.o.cursorline = true
 vim.o.modeline = true
-vim.o.formatoptions = 'cqjt'
+vim.o.formatoptions = "cqjt"
 vim.o.ignorecase = true
 vim.o.smartcase = true
 vim.o.laststatus = 2
 vim.o.number = true
 vim.o.relativenumber = true
-
--- folding
-vim.api.nvim_create_autocmd("BufEnter", {
-    pattern = "*",
-    callback = function()
-        vim.wo.foldmethod = 'expr'
-        vim.wo.foldexpr = 'v:lua.vim.treesitter.foldexpr()'
-    end
-})
--- TODO upgrade to a more general session/workspace management flow
-vim.api.nvim_create_augroup("remember_folds", { clear = true })
-vim.api.nvim_create_autocmd("BufWinLeave", {
-    group = "remember_folds",
-    pattern = "*.*",
-    command = "mkview"
-})
-vim.api.nvim_create_autocmd("BufWinEnter", {
-    group = "remember_folds",
-    pattern = "*.*",
-    command = "silent! loadview"
-})
-
-vim.o.mouse = 'a'
+vim.o.mouse = "a"
 vim.o.swapfile = false
 vim.o.backup = false
 vim.o.writebackup = false
 vim.o.hidden = true
-vim.o.matchpairs = vim.o.matchpairs .. ',<:>'
-
+vim.o.matchpairs = vim.o.matchpairs .. ",<:>"
 -- columns
-vim.o.foldcolumn = '2'
-vim.diagnostic.config({
-    update_in_insert = false,
-})
-vim.o.signcolumn = 'yes:2'
+vim.o.foldcolumn = "2"
+vim.o.signcolumn = "yes:2"
+vim.diagnostic.config({ update_in_insert = false })
+-- indent guides
+vim.g.indent_guides_guide_size = 1
+vim.g.indent_guides_start_level = 3
 
--- statusline
-local function custom_statusline_color()
-    local mode = vim.api.nvim_get_mode().mode
-    if vim.bo.modified then
-        -- Set modified color
-        return '%#StatusLineModified#'
-    elseif mode == 'n' then
-        -- Set normal mode color
-        return '%#StatusLineNormal#'
-    else
-        -- Set other mode color
-        return '%#StatusLineOther#'
+-- NON-PLUGIN KEYBINDS
+local vks = vim.keymap.set
+-- enforced efficiency
+vks("", "<Up>", "<NOP>", { silent = true })
+vks("", "<Down>", "<NOP>", { silent = true })
+vks("", "<Left>", "<NOP>", { silent = true })
+vks("", "<Right>", "<NOP>", { silent = true })
+vks("", ":", "<NOP>", {})
+vks("", ";", ":", {})
+vks("n", "<S-I>", "<C-O>", { desc = "Jump back" })
+vks("n", "<S-K>", "<C-I>", { desc = "Jump forward" })
+-- easy search and replace
+vks("n", "<Leader>s", ":%s///g<Left><Left><Left>")
+-- buffer switching
+vks("n", "<C-n>", ":bnext<CR>", { silent = true })
+vks("n", "<C-p>", ":bprevious<CR>", { silent = true })
+-- use q instead of C-w to navigate windows much more ergonomically
+-- TODO better macro keybinding
+vks({ "n" }, "q", "<C-w>", {})
+vks("n", "<C-l>", "<C-w>l", { silent = true })
+vks("n", "<C-h>", "<C-w>h", { silent = true })
+vks("n", "<C-q>", "<C-l>", { silent = true })
+-- TODO remove when salmon is packaged
+-- COLORS
+-- local salmon = require("config.salmon")
+-- salmon.set_signs()
+-- salmon.set_highlights()
+
+----------
+-- PLUGINS
+----------
+require("config.lazy")
+require("config.installers")
+require("config.treesitter")
+require("config.conform_setup")
+require("config.lsp_setup")
+require("config.dap_setup")
+
+-- LSP BINDINGS
+vim.api.nvim_create_autocmd("LspAttach", {
+  desc = "LSP actions",
+  callback = function()
+    -- Displays hover information about the symbol under the cursor
+    vks("n", "gk", vim.lsp.buf.hover)
+
+    -- Shift+<F6>
+    vks("n", "<F18>", vim.lsp.buf.rename)
+
+    -- Lists all the implementations for the symbol under the cursor
+    vks("n", "gi", vim.lsp.buf.implementation)
+    vks("n", "gd", vim.lsp.buf.definition)
+    vks("n", "gD", vim.lsp.buf.type_definition)
+    vks("n", "gr", vim.lsp.buf.references)
+
+    -- Displays a function's signature information
+    vks("n", "<M-p>", vim.lsp.buf.signature_help)
+    vks({ "n", "v" }, "<M-CR>", vim.lsp.buf.code_action)
+
+    -- Show diagnostics in a floating window
+    vks("n", "gl", vim.diagnostic.open_float)
+    -- Move to the previous diagnostic
+    vks("n", "[d", vim.diagnostic.goto_prev)
+    -- Move to the next diagnostic
+    vks("n", "]d", vim.diagnostic.goto_next)
+  end,
+})
+-- LINTER + FORMATTER BINDINGS
+if require("conform") then
+  local conform = require("conform")
+  local function fmt()
+    conform.format({
+      lsp_fallback = true,
+      async = false,
+      timeout_ms = 500,
+    })
+  end
+  vks({ "n", "v" }, "<Leader>lf", fmt, { desc = "Format file or range" })
+end
+
+-- GIT BINDINGS
+-- neogit
+-- TODO
+-- blame
+vks({ "n" }, "<F60>", "<cmd>BlameToggle<cr>", { desc = "Toggle git blame" })
+-- gitsigns
+if require("gitsigns") then
+  local g = require("gitsigns")
+  vks("n", "<leader>hs", g.stage_hunk, { desc = "Stage hunk" })
+  vks("n", "<leader>hr", g.reset_hunk, { desc = "Reset hunk" })
+  vks(
+    "v",
+    "<leader>hs",
+    function() g.stage_hunk({ vim.fn.line("."), vim.fn.line("v") }) end,
+    { desc = "Stage selected hunk" }
+  )
+  vks(
+    "v",
+    "<leader>hr",
+    function() g.reset_hunk({ vim.fn.line("."), vim.fn.line("v") }) end,
+    { desc = "Reset selected hunk" }
+  )
+  vks("n", "<leader>hS", g.stage_buffer, { desc = "Stage buffer" })
+  vks("n", "<leader>hu", g.undo_stage_hunk, { desc = "Undo stage hunk" })
+  vks("n", "<leader>hR", g.reset_buffer, { desc = "Reset buffer" })
+  vks("n", "<leader>hp", g.preview_hunk, { desc = "Preview hunk" })
+  vks("n", "<leader>hd", g.diffthis, { desc = "Diff this" })
+  vks("n", "<leader>hD", function() g.diffthis("~") end, { desc = "Diff this (~)" })
+  vks("n", "<leader>td", g.toggle_deleted, { desc = "Toggle deleted" })
+end
+-- DEBUGGER BINDINGS
+if require("dap") then
+  local d = require("dap")
+  local w = require("dap.ui.widgets")
+  vks("n", "<A-b>", d.toggle_breakpoint)
+  vks("n", "<A-l>", d.continue)
+  vks("n", "<A-j>", d.step_into)
+  vks("n", "<A-o>", d.step_over)
+  vks("n", "<A-k>", d.step_out)
+  vks("n", "<A-h>", d.step_back)
+  -- vks({ 'n', 'v' }, '<A-h>',  w.preview)
+  -- vks({ "n", "v" }, "<A-h>", w.hover)
+  vks({ "n", "v" }, "<A-s>", function() w.centered_float(w.scopes) end)
+  vks({ "n", "v" }, "<A-f>", function() w.centered_float(w.frames) end)
+end
+if require("dapui") then
+  local dap, dapui = require("dap"), require("dapui")
+  dapui.setup()
+  dap.listeners.before.attach.dapui_config = function() dapui.open() end
+  dap.listeners.before.launch.dapui_config = function() dapui.open() end
+  dap.listeners.before.event_terminated.dapui_config = function() dapui.close() end
+  dap.listeners.before.event_exited.dapui_config = function() dapui.close() end
+end
+
+-- OTHER PLUGIN KEYBINDS
+-- spectre
+if require("spectre") then
+  local spectre = require("spectre")
+  vks("n", "<leader>S", spectre.toggle)
+  vks(
+    "n",
+    "<leader>sw",
+    function() spectre.open_visual({ select_word = true }) end,
+    { desc = "Search current word" }
+  )
+  vks("v", "<leader>sw", spectre.open_visual, { desc = "Search current word" })
+end
+
+-- telescope
+local builtin = require("telescope.builtin")
+vks("n", "<leader>ff", builtin.find_files, {})
+vks("n", "<leader>fg", builtin.live_grep, {})
+vks("n", "<leader>fb", builtin.buffers, {})
+vks("n", "<leader>fh", builtin.help_tags, {})
+vks("n", "<leader>fhl", builtin.highlights, {})
+vks("n", "<leader>fkm", builtin.keymaps, {})
+
+-- aerial
+vks("n", "<leader>0", "<cmd>AerialToggle! right<CR>")
+
+-- nvim tree
+-- make directories into folds... it's too logical!
+if require("nvim-tree.api") then
+  local api = require("nvim-tree.api")
+  -- general keymaps
+  vks("n", "<F49>", api.tree.toggle, { desc = "Find current file in tree" })
+  vks(
+    "n",
+    "<F50>",
+    function() api.tree.find_file(false, true, true) end,
+    { desc = "Find current file in tree" }
+  )
+
+  -- on attach keymaps
+  local function nvim_tree_keymap_onattach(bufnr)
+    local function opts(desc)
+      return {
+        desc = "nvim-tree: " .. desc,
+        buffer = bufnr,
+        noremap = true,
+        silent = true,
+        nowait = true,
+      }
     end
+    -- default mappings
+    api.config.mappings.default_on_attach(bufnr)
+    -- custom mappings
+    vks("n", "<Leader>q", "q", opts("Close the tree"))
+    vks("n", "zo", api.node.open.edit, opts("Open selected directory"))
+    -- this is just a toggle, but let's not abuse muscle memory
+    vks("n", "zc", api.node.open.edit, opts("Close selected directory"))
+    vks("n", "zO", api.tree.expand_all, opts("Open selected directory recursively"))
+    vks("n", "zC", api.tree.collapse_all, opts("Close selected directory recursively"))
+  end
+  -- pass to setup along with your other options
+  require("nvim-tree").setup({ on_attach = nvim_tree_keymap_onattach })
+end
+
+-- AUTOGROUPS
+-- enable access/write highlight
+group = vim.api.nvim_create_augroup("lsp_augrp", {})
+vim.api.nvim_create_autocmd("LspAttach", {
+  callback = function(ev)
+    local client = vim.lsp.get_client_by_id(ev.data.client_id)
+    local bufnr = ev.buf
+    if not client then return end
+    if client.server_capabilities.documentHighlightProvider then
+      local grp = vim.api.nvim_create_augroup("lsp_document_highlight" .. bufnr, { clear = true })
+      vim.api.nvim_create_autocmd("CursorMoved", {
+        buffer = bufnr,
+        group = grp,
+        callback = function()
+          vim.lsp.buf.clear_references()
+          vim.lsp.buf.document_highlight()
+        end,
+      })
+    end
+  end,
+})
+
+-- autofold
+vim.api.nvim_create_autocmd("BufEnter", {
+  pattern = "*",
+  callback = function()
+    vim.wo.foldmethod = "expr"
+    vim.wo.foldexpr = "v:lua.vim.treesitter.foldexpr()"
+  end,
+})
+-- TODO upgrade to a more general session/workspace management flow
+-- local grp = vim.api.nvim_create_augroup("remember_folds", { clear = true })
+-- vim.api.nvim_create_autocmd("BufWinLeave", { group = grp, pattern = "*.*", command = "mkview" })
+-- vim.api.nvim_create_autocmd("BufWinEnter", { group = grp, pattern = "*.*", command = "silent! loadview" })
+
+-- STATUS LINE
+local function custom_statusline_color()
+  local mode = vim.api.nvim_get_mode().mode
+  if vim.bo.modified then
+    -- Set modified color
+    return "%#StatusLineModified#"
+  elseif mode == "n" then
+    -- Set normal mode color
+    return "%#StatusLineNormal#"
+  else
+    -- Set other mode color
+    return "%#StatusLineOther#"
+  end
 end
 local statusline = {
-    ' %t',
-    '%r',
-    '%m',
-    '%=',
-    '%{&filetype}',
-    ' %2p%%',
-    ' %3l:%-2c ',
-    '%*',
+  " %t",
+  "%r",
+  "%m",
+  "%=",
+  "%{&filetype}",
+  " %2p%%",
+  " %3l:%-2c ",
+  "%*",
 }
 
-vim.o.statusline = custom_statusline_color() .. table.concat(statusline, '')
+vim.o.statusline = custom_statusline_color() .. table.concat(statusline, "")
 
 -- GENERIC HELPERS
 -- PLUGINS - GLOBAL
@@ -228,53 +305,26 @@ vim.o.statusline = custom_statusline_color() .. table.concat(statusline, '')
 -- TREE
 -- open automatically:
 local function open_nvim_tree()
-    require("nvim-tree.api").tree.open()
-    vim.cmd("wincmd p")
+  require("nvim-tree.api").tree.open()
+  vim.cmd("wincmd p")
 end
-vim.api.nvim_create_autocmd(
-    { "VimEnter" },
-    { callback = open_nvim_tree }
-)
-
--- make directories into folds... it's too logical!
-local function my_on_attach(bufnr)
-    local api = require "nvim-tree.api"
-    local function opts(desc)
-        return { desc = "nvim-tree: " .. desc, buffer = bufnr, noremap = true, silent = true, nowait = true }
-    end
-
-    -- default mappings
-    api.config.mappings.default_on_attach(bufnr)
-
-    -- custom mappings
-    vim.keymap.set('n', 'zo', api.node.open.edit, opts('Open selected directory'))
-    -- this is just a toggle, but let's not abuse muscle memory
-    vim.keymap.set('n', 'zc', api.node.open.edit, opts('Close selected directory'))
-    vim.keymap.set('n', 'zO', api.tree.expand_all, opts('Open selected directory recursively'))
-    vim.keymap.set('n', 'zC', api.tree.collapse_all, opts('Close selected directory recursively'))
-end
-
--- pass to setup along with your other options
-require("nvim-tree").setup {
-    on_attach = my_on_attach,
-}
-
--- indent guides
-vim.g.indent_guides_guide_size = 1
-vim.g.indent_guides_start_level = 3
-
--- ECHODOC
-vim.o.cmdheight = 2
-vim.g.echodoc_enable_at_startup = 1
+vim.api.nvim_create_autocmd({ "VimEnter" }, { callback = open_nvim_tree })
 
 -- FILETYPE SETTINGS
-
+-- python
 vim.api.nvim_create_autocmd("FileType", {
-    pattern = "python",
-    callback = function()
-        vim.keymap.set("n", "<F5>", function()
-            local file = vim.fn.shellescape(vim.fn.expand("%"), 1)
-            vim.cmd("exec '!python " .. file .. "'")
-        end, { buffer = true })
-    end,
+  pattern = "python",
+  callback = function()
+    vks("n", "<F5>", function()
+      local file = vim.fn.shellescape(vim.fn.expand("%"), 1)
+      vim.cmd("exec '!python " .. file .. "'")
+    end, { buffer = true })
+  end,
+})
+-- helm
+-- do not detect helm-like yamls as yaml:
+vim.filetype.add({
+  pattern = {
+    [".*/templates/.*%.yaml"] = "helm",
+  },
 })
