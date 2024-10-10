@@ -53,14 +53,11 @@ vks("n", "<S-K>", "<C-I>", { desc = "Jump forward" })
 -- easy search and replace
 vks("n", "<Leader>s", ":%s///g<Left><Left><Left>")
 -- buffer switching
-vks("n", "<C-n>", ":bnext<CR>", { silent = true })
-vks("n", "<C-p>", ":bprevious<CR>", { silent = true })
+-- vks("n", "<C-n>", ":bnext<CR>", { silent = true })
+-- vks("n", "<C-p>", ":bprevious<CR>", { silent = true })
 -- use q instead of C-w to navigate windows much more ergonomically
 -- TODO better macro keybinding
-vks({ "n" }, "q", "<C-w>", {})
-vks("n", "<C-l>", "<C-w>l", { silent = true })
-vks("n", "<C-h>", "<C-w>h", { silent = true })
-vks("n", "<C-q>", "<C-l>", { silent = true })
+vks({ "n" }, "w", "<C-w>", {})
 -- TODO remove when salmon is packaged
 -- COLORS
 -- local salmon = require("config.salmon")
@@ -76,6 +73,8 @@ require("config.treesitter")
 require("config.conform_setup")
 require("config.lsp_setup")
 require("config.dap_setup")
+--- utils
+U = require("util")
 
 -- LSP BINDINGS
 vim.api.nvim_create_autocmd("LspAttach", {
@@ -120,7 +119,10 @@ end
 
 -- GIT BINDINGS
 -- neogit
--- TODO
+if require("neogit") then
+  local neogit = require("neogit")
+  vks("n", "<leader>G", neogit.open)
+end
 -- blame
 vks({ "n" }, "<F60>", "<cmd>BlameToggle<cr>", { desc = "Toggle git blame" })
 -- gitsigns
@@ -145,6 +147,8 @@ if require("gitsigns") then
   vks("n", "<leader>hR", g.reset_buffer, { desc = "Reset buffer" })
   vks("n", "<leader>hp", g.preview_hunk, { desc = "Preview hunk" })
   vks("n", "<leader>hd", g.diffthis, { desc = "Diff this" })
+  vks("n", "<leader>hb", g.blame_line, { desc = "Blame line" })
+  vks("n", "<leader>hB", function() g.blame_line({ full = true }) end, { desc = "Blame line" })
   vks("n", "<leader>hD", function() g.diffthis("~") end, { desc = "Diff this (~)" })
   vks("n", "<leader>td", g.toggle_deleted, { desc = "Toggle deleted" })
 end
@@ -196,13 +200,14 @@ vks("n", "<leader>fhl", builtin.highlights, {})
 vks("n", "<leader>fkm", builtin.keymaps, {})
 
 -- aerial
-vks("n", "<leader>0", "<cmd>AerialToggle! right<CR>")
+vks("n", "<leader>0", "<cmd>AerialNavToggle<cr>", { desc = "Toggle aerial" })
 
 -- nvim tree
 -- make directories into folds... it's too logical!
 if require("nvim-tree.api") then
   local api = require("nvim-tree.api")
   -- general keymaps
+  vks("n", "<leader>T", api.tree.toggle, { desc = "Toggle tree" })
   vks("n", "<F49>", api.tree.toggle, { desc = "Find current file in tree" })
   vks(
     "n",
@@ -261,15 +266,20 @@ vim.api.nvim_create_autocmd("LspAttach", {
 -- autofold
 vim.api.nvim_create_autocmd("BufEnter", {
   pattern = "*",
-  callback = function()
-    vim.wo.foldmethod = "expr"
-    vim.wo.foldexpr = "v:lua.vim.treesitter.foldexpr()"
+  callback = function(data)
+    if U.buffer_has_parser(data.buf) then
+      vim.wo.foldmethod = "expr"
+      vim.wo.foldexpr = "v:lua.vim.treesitter.foldexpr()"
+    else
+      vim.wo.foldmethod = "indent"
+    end
   end,
 })
--- TODO upgrade to a more general session/workspace management flow
--- local grp = vim.api.nvim_create_augroup("remember_folds", { clear = true })
--- vim.api.nvim_create_autocmd("BufWinLeave", { group = grp, pattern = "*.*", command = "mkview" })
--- vim.api.nvim_create_autocmd("BufWinEnter", { group = grp, pattern = "*.*", command = "silent! loadview" })
+-- fix the folds for diffs, etc
+vim.api.nvim_create_autocmd("FileType", {
+  pattern = { "DiffviewFiles", "DiffviewFileHistory" },
+  callback = function() vim.wo.foldmethod = "diff" end,
+})
 
 -- STATUS LINE
 local function custom_statusline_color()
@@ -286,7 +296,7 @@ local function custom_statusline_color()
   end
 end
 local statusline = {
-  " %t",
+  "%F",
   "%r",
   "%m",
   "%=",
@@ -311,15 +321,31 @@ end
 vim.api.nvim_create_autocmd({ "VimEnter" }, { callback = open_nvim_tree })
 
 -- FILETYPE SETTINGS
+-- lua
+vim.api.nvim_create_autocmd("FileType", {
+  pattern = { "lua" },
+  callback = function()
+    vim.bo.tabstop = 2
+    vim.bo.shiftwidth = 2
+    vim.bo.softtabstop = 2
+  end,
+})
+
 -- python
 vim.api.nvim_create_autocmd("FileType", {
-  pattern = "python",
+  pattern = { "python" },
   callback = function()
+    -- allow easy file execution with F5
     vks("n", "<F5>", function()
       local file = vim.fn.shellescape(vim.fn.expand("%"), 1)
       vim.cmd("exec '!python " .. file .. "'")
     end, { buffer = true })
   end,
+})
+-- disable diagnostics for common library paths
+vim.api.nvim_create_autocmd({ "BufEnter", "BufNewFile" }, {
+  pattern = { "*/site-packages/*", "*/venv/*" },
+  callback = function(args) vim.diagnostic.enable(false, { bufnr = args.buf }) end,
 })
 -- helm
 -- do not detect helm-like yamls as yaml:

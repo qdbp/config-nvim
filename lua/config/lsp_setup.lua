@@ -4,8 +4,9 @@ local capabilities = require("cmp_nvim_lsp").default_capabilities()
 -- individual lsps
 local lsp = require("lspconfig")
 
--- YAML
+-- JSON, YAML
 lsp.yamlls.setup({})
+lsp.jsonls.setup({})
 
 -- HELM
 lsp.helm_ls.setup({

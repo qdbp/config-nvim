@@ -4,12 +4,13 @@ require("mason-lspconfig").setup({
   ensure_installed = {
     "bashls",
     "basedpyright",
+    "clangd",
+    "helm_ls",
+    "jsonls",
     "lemminx",
     "lua_ls",
-    "ruff",
-    "clangd",
     "pylsp",
-    "helm_ls",
+    "ruff",
     "yamlls",
   },
 })

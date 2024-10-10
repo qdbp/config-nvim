@@ -79,6 +79,7 @@ return {
       view = { width = 30 },
     },
   },
+  -- structure
   {
     "stevearc/aerial.nvim",
     opts = {},
@@ -88,6 +89,8 @@ return {
       "nvim-tree/nvim-web-devicons",
     },
   },
+  -- jumping around
+  { "kwkarlwang/bufjump.nvim" },
 
   -- SESSIONS
   {
@@ -218,7 +221,6 @@ return {
           { name = "buffer" },
         },
       })
-
       -- Use cmdline & path source for ':' (if you enabled `native_menu`, this won't work anymore).
       cmp.setup.cmdline(":", {
         mapping = cmp.mapping.preset.insert(custom_mapping),
