@@ -267,7 +267,10 @@ vim.api.nvim_create_autocmd("LspAttach", {
 vim.api.nvim_create_autocmd("BufEnter", {
   pattern = "*",
   callback = function(data)
-    if U.buffer_has_parser(data.buf) then
+    local name = vim.api.nvim_buf_get_name(data.buf)
+    if name:match("diffview") or name:match("gitsigns") then
+      vim.wo.foldmethod = "diff"
+    elseif U.buffer_has_parser(data.buf) then
       vim.wo.foldmethod = "expr"
       vim.wo.foldexpr = "v:lua.vim.treesitter.foldexpr()"
     else
