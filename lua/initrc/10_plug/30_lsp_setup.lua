@@ -10,6 +10,7 @@ lsp.jsonls.setup({})
 
 -- HELM
 lsp.helm_ls.setup({
+  capabilities = capabilities,
   settings = {
     ["helm-ls"] = {
       yamlls = {
@@ -20,7 +21,14 @@ lsp.helm_ls.setup({
 })
 
 -- BASH
-lsp.bashls.setup({})
+lsp.bashls.setup({
+  capabilities = capabilities,
+})
+
+-- LEAN
+lsp.leanls.setup({
+  capabilities = capabilities,
+})
 
 -- PYTHON
 lsp.basedpyright.setup({
@@ -32,7 +40,6 @@ lsp.basedpyright.setup({
       },
     },
   },
-  root_dir = lsp.util.root_pattern("pyproject.toml", ".git"),
 })
 
 -- TODO may be better to call ruff through pylsp? check if there are conflicts here

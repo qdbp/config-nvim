@@ -1,33 +1,15 @@
+-- TODO break up into files
+
 return {
-  -- colors
+  --- *** VISUAL FEATURES *** ---
   {
     dir = "/home/main/programming/projects/salmon.nvim",
     opts = {},
     lazy = false,
     priority = 1337,
   },
-  -- LSP
-  { "williamboman/mason.nvim" },
-  { "williamboman/mason-lspconfig.nvim" },
-  { "WhoIsSethDaniel/mason-tool-installer.nvim" },
-
-  { "neovim/nvim-lspconfig" },
-
-  -- FORMATTING + LINTING
-  {
-    "stevearc/conform.nvim",
-    opts = {},
-  },
-
-  -- TREESITTER
-  {
-    "nvim-treesitter/nvim-treesitter",
-    opts = {
-      additional_vim_regex_highlighting = false,
-    },
-  },
-
-  -- FILE NAVIGATION
+  -- HIGHLIGHTING
+  { "chrisbra/Colorizer" },
   -- icons
   { "nvim-tree/nvim-web-devicons" },
   {
@@ -49,6 +31,34 @@ return {
       "nvim-tree/nvim-web-devicons",
     },
   },
+
+  --- *** USABILITY ENHANCEMENTS *** ---
+  -- GENERAL UTILITIES
+  { "m4xshen/autoclose.nvim" },
+  { "numToStr/Comment.nvim" },
+  { "kshenoy/vim-signature" },
+  { "kylechui/nvim-surround" },
+  { "nmac427/guess-indent.nvim", opts = {} },
+  {
+    "kevinhwang91/nvim-bqf",
+    opts = { preview = { auto_preview = true, should_preview_cb = function() return true end } },
+  },
+  -- {
+  --   "windwp/nvim-autopairs",
+  --   config = true,
+  --   opts = { check_ts = true, enable_check_bracket_line = true, },
+  -- },
+
+  {
+    "lukas-reineke/indent-blankline.nvim",
+    main = "ibl",
+    opts = {
+      indent = { highlight = { "IndentGuide" } },
+      scope = { enabled = false },
+    },
+  },
+
+  -- FILE NAVIGATION
   -- spectre
   {
     "nvim-pack/nvim-spectre",
@@ -63,6 +73,7 @@ return {
         file_ignore_patterns = {
           -- python
           "site%-packages/.*%.py$",
+          "build/.*%.py$",
         },
       },
     },
@@ -90,30 +101,46 @@ return {
     },
   },
   -- jumping around
-  { "kwkarlwang/bufjump.nvim" },
+  { "kwkarlwang/bufjump.nvim", opts = {} },
 
-  -- SESSIONS
+  -- SESSIONS AND SIMILAR
   {
     "rmagatti/auto-session",
     lazy = false,
-
-    ---enables autocomplete for opts
-    ---@module "auto-session"
-    ---@type AutoSession.Config
     opts = {
-      suppressed_dirs = {
-        "~/",
-        "~/programming",
-        "~/programming/projects",
-        "~/trash",
-        "/",
+      suppressed_dirs = { "~/", "~/programming", "~/programming/projects", "~/trash", "/" },
+    },
+  },
+  {
+    "okuuva/auto-save.nvim",
+    event = { "InsertLeave", "TextChanged" },
+    opts = {
+      enabled = true,
+      trigger_events = {
+        defer_save = { "InsertLeave", "TextChanged" },
+        immediate_save = { "BufLeave", "FocusLost" },
       },
+      debounce_delay = 1000, -- Save after 1 second of inactivity
     },
   },
 
-  -- DEBUGGING
+  -- DEBUGGING and testing
+  {
+    "Weissle/persistent-breakpoints.nvim",
+    opts = { load_breakpoints_events = "BufReadPost" },
+    lazy = false,
+  },
   { "mfussenegger/nvim-dap" },
   { "rcarriga/nvim-dap-ui", dependencies = { "mfussenegger/nvim-dap", "nvim-neotest/nvim-nio" } },
+  {
+    "nvim-neotest/neotest",
+    dependencies = {
+      "nvim-neotest/nvim-nio",
+      "nvim-lua/plenary.nvim",
+      "antoinemadec/FixCursorHold.nvim",
+      "nvim-treesitter/nvim-treesitter",
+    },
+  },
 
   -- INSPECTION
   {
@@ -153,6 +180,18 @@ return {
       },
     },
   },
+
+  --- ** SEMANTIC FEATURES ** ---
+  -- LSP
+  { "williamboman/mason.nvim" },
+  { "williamboman/mason-lspconfig.nvim" },
+  { "WhoIsSethDaniel/mason-tool-installer.nvim" },
+  { "neovim/nvim-lspconfig" },
+  -- FORMATTING + LINTING
+  { "stevearc/conform.nvim", opts = {} },
+
+  -- TREESITTER
+  { "nvim-treesitter/nvim-treesitter", opts = { additional_vim_regex_highlighting = false } },
 
   -- COMPLETIONS
   {
@@ -215,6 +254,7 @@ return {
         experimental = { ghost_text = true },
       })
       -- Use buffer source for `/` and `?` (if you enabled `native_menu`, this won't work anymore).
+      -- TODO fix autocomplete breaking here (tab starts to insert ^)
       cmp.setup.cmdline({ "/", "?" }, {
         mapping = cmp.mapping.preset.cmdline(),
         sources = {
@@ -345,13 +385,11 @@ return {
     },
   },
 
-  -- HIGHLIGHTING
-  { "chrisbra/Colorizer" },
-
   -- GIT
   {
     "lewis6991/gitsigns.nvim",
     opts = {
+      attach_to_untracked = true,
       signs = {
         add = { text = " " },
         change = { text = " " },
@@ -383,6 +421,7 @@ return {
     "FabijanZulj/blame.nvim",
     opts = {
       date_format = "%Y-%m-%d",
+      -- TODO export from salmon?
       colors = {
         "#4F3BA3",
         "#812687",
@@ -396,32 +435,21 @@ return {
     },
   },
 
-  -- GENERAL UTILITIES
-  { "m4xshen/autoclose.nvim" },
-  { "numToStr/Comment.nvim" },
-  { "kshenoy/vim-signature" },
-  { "tpope/vim-surround" },
-  {
-    "kevinhwang91/nvim-bqf",
-    opts = {
-      preview = {
-        auto_preview = true,
-        should_preview_cb = function() return true end,
-      },
-    },
-  },
-  {
-    "lukas-reineke/indent-blankline.nvim",
-    main = "ibl",
-    opts = {
-      indent = { highlight = { "IndentGuide" } },
-      scope = { enabled = false },
-    },
-  },
-
-  -- LANGUAGE SPECIFIC
+  --- *** LANGUAGE SPECIFIC *** ---
   -- python
   { "mfussenegger/nvim-dap-python" },
+  { "nvim-neotest/neotest-python", dependencies = { "nvim-neotest/neotest" } },
+  -- lean
+  {
+    "Julian/lean.nvim",
+    event = { "BufReadPre *.lean", "BufNewFile *.lean" },
+    dependencies = {
+      "neovim/nvim-lspconfig",
+      "nvim-lua/plenary.nvim",
+      "hrsh7th/nvim-cmp",
+    },
+    opts = { mappings = true },
+  },
   -- markdown
   {
     "iamcco/markdown-preview.nvim",
