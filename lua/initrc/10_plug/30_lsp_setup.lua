@@ -4,6 +4,10 @@ local capabilities = require("cmp_nvim_lsp").default_capabilities()
 -- individual lsps
 local lsp = require("lspconfig")
 
+--==============================
+--== LANGUAGE SERVERS
+--==============================
+
 -- JSON, YAML
 lsp.yamlls.setup({})
 lsp.jsonls.setup({})
@@ -25,6 +29,12 @@ lsp.bashls.setup({
   capabilities = capabilities,
 })
 
+-- JAVA
+-- relying on nvim-java here to work some backend magic
+lsp.jdtls.setup({
+  capabilities = capabilities,
+})
+
 -- LEAN
 lsp.leanls.setup({
   capabilities = capabilities,
@@ -36,7 +46,7 @@ lsp.basedpyright.setup({
   settings = {
     basedpyright = {
       analysis = {
-        typeCheckingMode = "standard",
+        typeCheckingMode = "basic",
       },
     },
   },
@@ -56,6 +66,7 @@ lsp.pylsp.setup({
         mccabe = { enabled = false },
         rope = { enabled = true },
         preload = { enabled = false },
+        mypy = { enabled = true },
       },
     },
   },

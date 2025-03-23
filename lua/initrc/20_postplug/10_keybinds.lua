@@ -1,3 +1,5 @@
+-- plugin-specific keymaps
+-- TODO consider breaking up further? kind of nice seeing it all in one file though
 U = require("util")
 local vks = U.vks
 
@@ -6,6 +8,7 @@ vim.api.nvim_create_autocmd("LspAttach", {
   desc = "LSP actions",
   callback = function()
     -- Displays hover information about the symbol under the cursor
+    vks("n", "gk", vim.lsp.buf.hover)
     vks("n", "gk", vim.lsp.buf.hover)
     vks({ "n", "i" }, "<F1>", vim.lsp.buf.signature_help)
 
@@ -36,10 +39,22 @@ if require("conform") then
     conform.format({
       lsp_fallback = true,
       async = false,
-      timeout_ms = 500,
+      timeout_ms = 1000,
     })
   end
   vks({ "n", "v" }, "<Leader>lf", fmt, { desc = "Format file or range" })
+end
+
+-- DIFF
+if require("diffview") then
+  local function toggle_diffview()
+    if next(require("diffview.lib").views) == nil then
+      vim.cmd("DiffviewOpen")
+    else
+      vim.cmd("DiffviewClose")
+    end
+  end
+  vks("n", "<M-d>", toggle_diffview, { desc = "Toggle diffview" })
 end
 
 -- GIT BINDINGS
@@ -88,6 +103,12 @@ if require("dap") then
   if not pb then pb = d end
   -- TODO conditional breakpoints and logpoints??
   vks("n", "<A-b>", pb.toggle_breakpoint)
+  vks(
+    "n",
+    "<A-B>",
+    function() require("dap").set_breakpoint(vim.fn.input("Breakpoint condition: ")) end
+  )
+  vks("n", "<A-c>", d.run_to_cursor)
   vks("n", "<A-l>", d.continue)
   vks("n", "<A-j>", d.step_into)
   vks("n", "<A-J>", d.down)
@@ -103,18 +124,19 @@ if require("dap") then
     end
   end)
   vks("n", "<A-Esc>", d.terminate)
-  -- vks({ 'n', 'v' }, '<A-h>',  w.preview)
-  -- vks({ "n", "v" }, "<A-h>", w.hover)
   vks({ "n", "v" }, "<A-s>", function() w.centered_float(w.scopes) end)
   vks({ "n", "v" }, "<A-f>", function() w.centered_float(w.frames) end)
 end
+
 if require("dapui") then
-  local dap, dapui = require("dap"), require("dapui")
-  dapui.setup()
-  dap.listeners.before.attach.dapui_config = function() dapui.open() end
-  dap.listeners.before.launch.dapui_config = function() dapui.open() end
-  dap.listeners.before.event_terminated.dapui_config = function() dapui.close() end
-  dap.listeners.before.event_exited.dapui_config = function() dapui.close() end
+  local dap, u = require("dap"), require("dapui")
+  u.setup()
+  dap.listeners.before.attach.dapui_config = function() u.open() end
+  dap.listeners.before.launch.dapui_config = function() u.open() end
+  dap.listeners.before.event_terminated.dapui_config = function() u.close() end
+  dap.listeners.before.event_exited.dapui_config = function() u.close() end
+  -- ui-specific keybinds
+  vks("v", "<A-e>", u.eval, { desc = "Evaluate visual expression" })
 end
 
 -- TEST RUNNER BINDINGS
@@ -126,6 +148,7 @@ if require("neotest") then
   vks("n", "<leader>tp", nt.output_panel.toggle, { desc = "toggle test output panel" })
   vks("n", "<leader>to", nt.output.open, { desc = "show test output" })
   vks("n", "<leader>ts", nt.summary.toggle, { desc = "toggle test summary panel" })
+  vks("n", "<leader>ta", function() nt.run.run("test/") end, { desc = "Run all tests" })
 end
 
 -- OTHER PLUGIN KEYBINDS

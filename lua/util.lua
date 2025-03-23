@@ -56,4 +56,28 @@ end, {})
 -- TODO pimp out later
 M.vks = vim.keymap.set
 
+function M.print_table(v, indent)
+  indent = indent or 0
+  local pad = string.rep("  ", indent)
+  if type(v) == "table" then
+    for k, val in pairs(v) do
+      local formatting = pad .. tostring(k) .. ": "
+      if type(val) == "table" then
+        print(formatting)
+        M.print_table(val, indent + 1)
+      else
+        print(formatting .. tostring(val))
+      end
+    end
+  elseif type(v) == "function" then
+    print(pad .. tostring(v))
+  else
+    print(pad .. tostring(v))
+  end
+end
+
+
+-- SSH UTILITIES
+
+
 return M

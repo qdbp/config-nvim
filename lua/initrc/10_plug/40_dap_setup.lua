@@ -4,5 +4,14 @@ py_dap.setup("python")
 py_dap.test_runner = "pytest"
 
 require("neotest").setup({
-  adapters = { require("neotest-python")({ dap = { justMyCode = false } }) },
+  adapters = {
+    require("neotest-python")({
+      args = { "-n", "0", "--log-level", "DEBUG", "--quiet" },
+      dap = {
+        justMyCode = false,
+        -- console = "integratedTerminal",
+      },
+    }),
+    require("neotest-java"),
+  },
 })

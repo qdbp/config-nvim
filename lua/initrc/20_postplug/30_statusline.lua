@@ -25,4 +25,4 @@ local function custom_statusline_color()
   end
 end
 
-vim.o.statusline = custom_statusline_color() .. table.concat(statusline, "")
+vim.opt.statusline = custom_statusline_color() .. table.concat(statusline, "")

@@ -1,37 +1,57 @@
 -- GENERAL SETTINGS
 -- colors
-vim.o.termguicolors = true
--- leaders
-vim.g.mapleader = " "
-vim.g.maplocalleader = "\\"
+vim.opt.termguicolors = true
 -- tabs
-vim.o.expandtab = true
-vim.o.tabstop = 4
-vim.o.softtabstop = 4
-vim.o.shiftwidth = 4
--- diable old file browser
-vim.g.loaded_netrw = 1
-vim.g.loaded_netrwPlugin = 1
+vim.opt.expandtab = true
+vim.opt.tabstop = 4
+vim.opt.softtabstop = 4
+vim.opt.shiftwidth = 4
 -- sessions (as recommended by autosession)
-vim.o.sessionoptions =
+vim.opt.sessionoptions =
   "blank,buffers,curdir,folds,help,tabpages,winsize,winpos,terminal,localoptions"
 -- generic
 -- TODO check if any of these are still useful
-vim.o.cursorline = true
-vim.o.modeline = true
-vim.o.formatoptions = "cqjtr"
-vim.o.ignorecase = true
-vim.o.smartcase = true
-vim.o.number = true
-vim.o.relativenumber = true
-vim.o.mouse = "a"
-vim.o.swapfile = false
-vim.o.backup = false
-vim.o.writebackup = false
-vim.o.matchpairs = vim.o.matchpairs .. ",<:>"
+vim.opt.cursorline = true
+vim.opt.modeline = true
+vim.opt.formatoptions = "cqjtr"
+vim.opt.ignorecase = true
+vim.opt.smartcase = true
+vim.opt.number = true
+vim.opt.relativenumber = true
+vim.opt.mouse = "a"
+vim.opt.swapfile = false
+vim.opt.backup = false
+vim.opt.writebackup = false
+vim.opt.matchpairs:append("<:>")
 -- columns
-vim.o.foldcolumn = "2"
-vim.o.signcolumn = "yes:2"
+vim.opt.foldcolumn = "2"
+vim.opt.signcolumn = "yes:2"
+-- undo
+vim.opt.undofile = true
+vim.opt.undodir = os.getenv("HOME") .. "/.cache/nvim/undodir"
+
+-- diable old file browser
+-- TODO move to nvim-tree load?
+vim.g.loaded_netrw = 1
+vim.g.loaded_netrwPlugin = 1
+
+-- leaders
+vim.g.mapleader = " "
+vim.g.maplocalleader = "\\"
+
 -- indent guides
 vim.g.indent_guides_guide_size = 1
 vim.g.indent_guides_start_level = 3
+
+-- clipboard magic to work with ssh
+vim.g.clipboard = {
+  name = "OSC 52",
+  copy = {
+    ["+"] = require("vim.ui.clipboard.osc52").copy("+"),
+    ["*"] = require("vim.ui.clipboard.osc52").copy("*"),
+  },
+  paste = { -- Remove paste functionality if terminal doesn't support it
+    ["+"] = function() return { vim.fn.split(vim.fn.getreg(""), "\n"), vim.fn.getregtype("") } end,
+    ["*"] = function() return { vim.fn.split(vim.fn.getreg(""), "\n"), vim.fn.getregtype("") } end,
+  },
+}

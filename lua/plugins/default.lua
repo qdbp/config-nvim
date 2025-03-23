@@ -43,12 +43,6 @@ return {
     "kevinhwang91/nvim-bqf",
     opts = { preview = { auto_preview = true, should_preview_cb = function() return true end } },
   },
-  -- {
-  --   "windwp/nvim-autopairs",
-  --   config = true,
-  --   opts = { check_ts = true, enable_check_bracket_line = true, },
-  -- },
-
   {
     "lukas-reineke/indent-blankline.nvim",
     main = "ibl",
@@ -73,7 +67,7 @@ return {
         file_ignore_patterns = {
           -- python
           "site%-packages/.*%.py$",
-          "build/.*%.py$",
+          ".*/?build/.*%.py$",
         },
       },
     },
@@ -120,7 +114,10 @@ return {
         defer_save = { "InsertLeave", "TextChanged" },
         immediate_save = { "BufLeave", "FocusLost" },
       },
-      debounce_delay = 1000, -- Save after 1 second of inactivity
+      condition = function(buf)
+        local content = table.concat(vim.api.nvim_buf_get_lines(buf, 0, -1, true), "")
+        return content:match("^%s*$") == nil
+      end,
     },
   },
 
@@ -131,7 +128,12 @@ return {
     lazy = false,
   },
   { "mfussenegger/nvim-dap" },
-  { "rcarriga/nvim-dap-ui", dependencies = { "mfussenegger/nvim-dap", "nvim-neotest/nvim-nio" } },
+  {
+    "rcarriga/nvim-dap-ui",
+    dependencies = { "mfussenegger/nvim-dap", "nvim-neotest/nvim-nio" },
+    -- TODO this might be a dumb way of doing this? that or use explicit `setup` for everyone
+    opts = require("plugins.opts.dapui"),
+  },
   {
     "nvim-neotest/neotest",
     dependencies = {
@@ -139,14 +141,26 @@ return {
       "nvim-lua/plenary.nvim",
       "antoinemadec/FixCursorHold.nvim",
       "nvim-treesitter/nvim-treesitter",
+      "rcasia/neotest-java",
     },
+    config = function()
+      require("neotest").setup({
+        summary = {
+          mappings = {
+            watch = "<leader>w",
+          },
+        },
+      })
+    end,
   },
 
   -- INSPECTION
   {
     "folke/trouble.nvim",
     cmd = "Trouble",
-    opts = {},
+    opts = {
+      position = "right",
+    },
     keys = {
       {
         "<leader>xx",
@@ -245,7 +259,15 @@ return {
         mapping = cmp.mapping.preset.insert(custom_mapping),
         sources = cmp.config.sources({
           { name = "copilot" },
-          { name = "nvim_lsp" },
+          {
+            name = "nvim_lsp",
+            entry_filter = function(entry, ctx)
+              local label = entry:get_insert_text()
+              -- Filter out dunder methods
+              if label:match("^__.*__$") then return false end
+              return true
+            end,
+          },
           { name = "luasnip" },
           { name = "buffer" },
           { name = "path" },
@@ -296,15 +318,10 @@ return {
     opts = {
       vendors = {
         openrouter = {
+          __inherited_from = "openai",
           endpoint = "https://openrouter.ai/api/v1",
-          model = "anthropic/claude-3.5-sonnet",
+          model = "anthropic/claude-3.7-sonnet",
           api_key_name = "OPENROUTER_API_KEY",
-          parse_curl_args = function(opts, code_opts)
-            return require("avante.providers").openai.parse_curl_args(opts, code_opts)
-          end,
-          parse_response_data = function(data_stream, event_state, opts)
-            return require("avante.providers").openai.parse_response(data_stream, event_state, opts)
-          end,
         },
       },
       provider = "openrouter", -- Recommend using Claude
@@ -331,7 +348,7 @@ return {
       behavior = { auto_set_highlight_group = false },
       windows = {
         position = "right", -- the position of the sidebar
-        wrap = true, -- similar to vim.o.wrap
+        wrap = true, -- similar to vim.opt.wrap
         width = 30, -- default % based on available width
         sidebar_header = {
           align = "center", -- left, center, right for title
@@ -391,11 +408,11 @@ return {
     opts = {
       attach_to_untracked = true,
       signs = {
-        add = { text = " " },
-        change = { text = " " },
-        delete = { text = " " },
-        topdelete = { text = " " },
-        changedelete = { text = " " },
+        add = { text = "+" },
+        change = { text = "~" },
+        delete = { text = "-" },
+        topdelete = { text = "~" },
+        changedelete = { text = "~" },
         untracked = { text = " " },
       },
       signs_staged = {
@@ -439,6 +456,18 @@ return {
   -- python
   { "mfussenegger/nvim-dap-python" },
   { "nvim-neotest/neotest-python", dependencies = { "nvim-neotest/neotest" } },
+  -- java
+  { "nvim-java/nvim-java" },
+  {
+    "rcasia/neotest-java",
+    ft = "java",
+    dependencies = {
+      "mfussenegger/nvim-jdtls",
+      "mfussenegger/nvim-dap", -- for the debugger
+      "rcarriga/nvim-dap-ui", -- recommended
+      "theHamsta/nvim-dap-virtual-text", -- recommended
+    },
+  },
   -- lean
   {
     "Julian/lean.nvim",

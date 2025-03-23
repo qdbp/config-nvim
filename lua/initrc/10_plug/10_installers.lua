@@ -1,11 +1,13 @@
 -- language servers
 require("mason").setup({})
-require("mason-lspconfig").setup({
+local ml = require("mason-lspconfig")
+ml.setup({
   ensure_installed = {
     "bashls",
     "basedpyright",
     "clangd",
     "helm_ls",
+    "jdtls",
     "jsonls",
     "lemminx",
     "lua_ls",
@@ -13,6 +15,17 @@ require("mason-lspconfig").setup({
     "ruff",
     "yamlls",
   },
+})
+
+ml.setup_handlers({
+  function(server_name)
+    if server_name ~= "jdtls" then
+      require("lspconfig")[server_name].setup({
+        capabilities = capabilities,
+        on_attach = on_attach,
+      })
+    end
+  end,
 })
 
 -- other tools
