@@ -17,17 +17,6 @@ ml.setup({
   },
 })
 
-ml.setup_handlers({
-  function(server_name)
-    if server_name ~= "jdtls" then
-      require("lspconfig")[server_name].setup({
-        capabilities = capabilities,
-        on_attach = on_attach,
-      })
-    end
-  end,
-})
-
 -- other tools
 require("mason-tool-installer").setup({
   ensure_installed = {

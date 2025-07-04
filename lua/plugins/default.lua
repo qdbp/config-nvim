@@ -197,8 +197,8 @@ return {
 
   --- ** SEMANTIC FEATURES ** ---
   -- LSP
-  { "williamboman/mason.nvim" },
-  { "williamboman/mason-lspconfig.nvim" },
+  { "williamboman/mason.nvim", version = "1.11.0" },
+  { "williamboman/mason-lspconfig.nvim", version = "1.32.0" },
   { "WhoIsSethDaniel/mason-tool-installer.nvim" },
   { "neovim/nvim-lspconfig" },
   -- FORMATTING + LINTING
@@ -316,7 +316,7 @@ return {
     event = "VeryLazy",
     lazy = false,
     opts = {
-      vendors = {
+      providers = {
         openrouter = {
           __inherited_from = "openai",
           endpoint = "https://openrouter.ai/api/v1",

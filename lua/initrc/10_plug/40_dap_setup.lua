@@ -6,7 +6,7 @@ py_dap.test_runner = "pytest"
 require("neotest").setup({
   adapters = {
     require("neotest-python")({
-      args = { "-n", "0", "--log-level", "DEBUG", "--quiet" },
+      args = { "-n", "0", "--log-level", "DEBUG", "--quiet", "--capture", "no", "--tb", "no" },
       dap = {
         justMyCode = false,
         -- console = "integratedTerminal",
