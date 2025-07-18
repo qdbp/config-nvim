@@ -8,8 +8,16 @@ vim.api.nvim_create_autocmd("LspAttach", {
   desc = "LSP actions",
   callback = function()
     -- Displays hover information about the symbol under the cursor
-    vks("n", "gk", vim.lsp.buf.hover)
-    vks("n", "gk", vim.lsp.buf.hover)
+    vks(
+      "n",
+      "gk",
+      function()
+        vim.lsp.buf.hover({
+          border = "single",
+          winblend = 10,
+        })
+      end
+    )
     vks({ "n", "i" }, "<F1>", vim.lsp.buf.signature_help)
 
     -- Shift+<F6>
@@ -21,15 +29,12 @@ vim.api.nvim_create_autocmd("LspAttach", {
     vks("n", "gD", vim.lsp.buf.type_definition)
     vks("n", "gr", vim.lsp.buf.references)
 
-    -- Displays a function's signature information
+    -- code action
     vks({ "n", "v" }, "<M-CR>", vim.lsp.buf.code_action)
-
-    -- Show diagnostics in a floating window
     vks("n", "gl", vim.diagnostic.open_float)
-    -- Move to the previous diagnostic
-    vks("n", "[d", vim.diagnostic.goto_prev)
-    -- Move to the next diagnostic
-    vks("n", "]d", vim.diagnostic.goto_next)
+
+    -- code lens
+    vks("n", "<leader>cl", vim.lsp.codelens.run, { desc = "Run CodeLens" })
   end,
 })
 -- LINTER + FORMATTER BINDINGS

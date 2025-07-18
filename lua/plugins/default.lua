@@ -72,6 +72,7 @@ return {
       },
     },
   },
+  { "nvim-telescope/telescope-ui-select.nvim", opts = {} },
   {
     "nvim-telescope/telescope-fzf-native.nvim",
     build = "cmake -S. -Bbuild -DCMAKE_BUILD_TYPE=Release && cmake --build build --config Release",
@@ -128,6 +129,7 @@ return {
     lazy = false,
   },
   { "mfussenegger/nvim-dap" },
+  { "jay-babu/mason-nvim-dap.nvim" },
   {
     "rcarriga/nvim-dap-ui",
     dependencies = { "mfussenegger/nvim-dap", "nvim-neotest/nvim-nio" },
@@ -142,6 +144,7 @@ return {
       "antoinemadec/FixCursorHold.nvim",
       "nvim-treesitter/nvim-treesitter",
       "rcasia/neotest-java",
+      "mrcjkb/rustaceanvim", -- provides rustaceanvim.neotest
     },
     config = function()
       require("neotest").setup({
@@ -197,8 +200,8 @@ return {
 
   --- ** SEMANTIC FEATURES ** ---
   -- LSP
-  { "williamboman/mason.nvim", version = "1.11.0" },
-  { "williamboman/mason-lspconfig.nvim", version = "1.32.0" },
+  { "williamboman/mason.nvim" },
+  { "williamboman/mason-lspconfig.nvim" },
   { "WhoIsSethDaniel/mason-tool-installer.nvim" },
   { "neovim/nvim-lspconfig" },
   -- FORMATTING + LINTING
@@ -311,95 +314,13 @@ return {
     dependencies = { "zbirenbaum/copilot.lua" },
   },
   {
-    "yetone/avante.nvim",
-    -- dir = "/home/main/programming/contrib/avante.nvim",
-    event = "VeryLazy",
-    lazy = false,
-    opts = {
-      providers = {
-        openrouter = {
-          __inherited_from = "openai",
-          endpoint = "https://openrouter.ai/api/v1",
-          model = "anthropic/claude-3.7-sonnet",
-          api_key_name = "OPENROUTER_API_KEY",
-        },
-      },
-      provider = "openrouter", -- Recommend using Claude
-      mappings = {
-        diff = {
-          ours = "co",
-          theirs = "ct",
-          all_theirs = "ca",
-          both = "cb",
-          cursor = "cc",
-          next = "]x",
-          prev = "[x",
-        },
-        jump = {
-          next = "]]",
-          prev = "[[",
-        },
-        submit = {
-          normal = "<CR>",
-          insert = "<C-s>",
-        },
-      },
-      hints = { enabled = true },
-      behavior = { auto_set_highlight_group = false },
-      windows = {
-        position = "right", -- the position of the sidebar
-        wrap = true, -- similar to vim.opt.wrap
-        width = 30, -- default % based on available width
-        sidebar_header = {
-          align = "center", -- left, center, right for title
-          rounded = true,
-        },
-      },
-      highlights = {
-        diff = {
-          current = "DiffText",
-          incoming = "DiffAdd",
-        },
-      },
-      diff = {
-        autojump = true,
-        list_opener = "copen",
-      },
-    },
-    build = ":AvanteBuild",
+    "CopilotC-Nvim/CopilotChat.nvim",
+    opts = {},
     dependencies = {
-      "stevearc/dressing.nvim",
-      "nvim-lua/plenary.nvim",
-      "MunifTanjim/nui.nvim",
-      --- The below dependencies are optional,
-      -- "nvim-tree/nvim-web-devicons", -- or echasnovski/mini.icons
-      "zbirenbaum/copilot.lua", -- for providers='copilot'
-      {
-        -- support for image pasting
-        "HakonHarnes/img-clip.nvim",
-        event = "VeryLazy",
-        opts = {
-          -- recommended settings
-          default = {
-            embed_image_as_base64 = false,
-            prompt_for_file_name = false,
-            drag_and_drop = {
-              insert_mode = true,
-            },
-            -- required for Windows users
-            use_absolute_path = true,
-          },
-        },
-      },
-      {
-        -- Make sure to setup it properly if you have lazy=true
-        "MeanderingProgrammer/render-markdown.nvim",
-        opts = {
-          file_types = { "markdown", "Avante" },
-        },
-        ft = { "markdown", "Avante" },
-      },
+      { "zbirenbaum/copilot.lua" }, -- your existing Copilot backend
+      { "nvim-lua/plenary.nvim" }, -- required utility lib
     },
+    build = "make tiktoken", -- optional, Mac/Linux: native token counter
   },
 
   -- GIT
@@ -478,6 +399,37 @@ return {
       "hrsh7th/nvim-cmp",
     },
     opts = { mappings = true },
+  },
+  -- rust
+  {
+    "mrcjkb/rustaceanvim",
+    ft = { "rust", "rs" },
+    init = function()
+      vim.g.rustaceanvim = {
+        tools = {
+          hover_actions = { auto_focus = true },
+        },
+        server = {
+          -- everything under `default_settings` is passed to rust-analyzer verbatim
+          default_settings = {
+            ["rust-analyzer"] = {
+              check = { command = "clippy" }, -- run clippy on save
+              cargo = { allFeatures = true },
+            },
+          },
+        },
+      }
+    end,
+    dependencies = {
+      "williamboman/mason.nvim",
+      "mfussenegger/nvim-dap",
+      "jay-babu/mason-nvim-dap.nvim",
+    },
+  },
+  {
+    "saecki/crates.nvim",
+    event = { "BufRead Cargo.toml" },
+    config = true,
   },
   -- markdown
   {

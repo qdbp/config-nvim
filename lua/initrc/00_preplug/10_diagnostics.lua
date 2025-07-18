@@ -12,35 +12,11 @@ vim.diagnostic.config({
   },
   -- Force single column
   severity_sort = true,
+  float = {
+    border = "single", -- same border styles apply here
+    source = "always", -- show “[lsp]” or “[eslint]” etc.
+    prefix = "", -- no leading “- “ on each line
+    winblend = 5, -- match your hover blend
+    close_events = { "CursorMoved", "InsertEnter", "FocusLost" },
+  },
 })
-
--- TODO
--- -- TWEAK: show at most one sign per line
--- -- Get reference to the original signs handler
--- local orig_signs_handler = vim.diagnostic.handlers.signs
---
--- -- Create a custom namespace
--- local ns = vim.api.nvim_create_namespace("max_one_sign")
---
--- -- Override the built-in signs handler
--- vim.diagnostic.handlers.signs = {
---   show = function(_, bufnr, _, opts)
---     -- Get all diagnostics from the buffer
---     local diagnostics = vim.diagnostic.get(bufnr)
---
---     -- Track highest severity diagnostic per line
---     local max_severity_per_line = {}
---     for _, d in pairs(diagnostics) do
---       local m = max_severity_per_line[d.lnum]
---       if not m or d.severity < m.severity then max_severity_per_line[d.lnum] = d end
---     end
---
---     -- Convert the severity map to an array of diagnostics
---     local filtered_diagnostics = vim.tbl_values(max_severity_per_line)
---
---     -- Show signs using original handler with filtered diagnostics
---     orig_signs_handler.show(ns, bufnr, filtered_diagnostics, opts)
---   end,
---
---   hide = function(_, bufnr) orig_signs_handler.hide(ns, bufnr) end,
--- }
