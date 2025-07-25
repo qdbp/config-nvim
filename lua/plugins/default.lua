@@ -47,10 +47,9 @@ return {
       },
     },
   },
-  { "m4xshen/autoclose.nvim" },
-  { "numToStr/Comment.nvim" },
+  { "numToStr/Comment.nvim", opts = {} },
   { "kshenoy/vim-signature" },
-  { "kylechui/nvim-surround" },
+  { "kylechui/nvim-surround", opts = {} },
   { "nmac427/guess-indent.nvim", opts = {} },
   {
     "kevinhwang91/nvim-bqf",
@@ -308,7 +307,7 @@ return {
       "sindrets/diffview.nvim", -- optional - Diff integration
       "nvim-telescope/telescope.nvim", -- optional
     },
-    config = true,
+    opts = require("plugins.opts.neogit"),
   },
   {
     "FabijanZulj/blame.nvim",
@@ -425,5 +424,10 @@ return {
     ft = { "markdown" },
     build = "cd app && yarn install",
     init = function() vim.g.mkdp_filetypes = { "markdown" } end,
+  },
+  -- helm
+  {
+    "towolf/vim-helm",
+    ft = "helm",
   },
 }

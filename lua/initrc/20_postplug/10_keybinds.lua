@@ -57,7 +57,7 @@ end
 -- neogit
 if require("neogit") then
   local neogit = require("neogit")
-  vks("n", "<leader>G", neogit.open)
+  vks("n", "<M-g>", neogit.open, { desc = "Open neogit" })
 end
 -- blame
 vks({ "n" }, "<F60>", "<cmd>BlameToggle<cr>", { desc = "Toggle git blame" })

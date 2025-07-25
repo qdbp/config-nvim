@@ -72,3 +72,21 @@ vim.lsp.config("lua_ls", {
     },
   },
 })
+
+--\_____
+-- HELM (vomit)
+--/‾‾‾‾‾‾
+
+vim.lsp.config("helm_ls", {
+  settings = {
+    helm = {
+      schemaDownload = { enable = true },
+      lint = {
+        enable = true,
+      },
+      format = {
+        enable = true,
+      },
+    },
+  },
+})

@@ -9,8 +9,8 @@ vim.opt.shiftwidth = 4
 -- sessions (as recommended by autosession)
 vim.opt.sessionoptions =
   "blank,buffers,curdir,folds,help,tabpages,winsize,winpos,terminal,localoptions"
+
 -- generic
--- TODO check if any of these are still useful
 vim.opt.cursorline = true
 vim.opt.modeline = true
 vim.opt.formatoptions = "cqjtr"
@@ -23,9 +23,13 @@ vim.opt.swapfile = false
 vim.opt.backup = false
 vim.opt.writebackup = false
 vim.opt.matchpairs:append("<:>")
+vim.opt.fillchars:append({ diff = "░" })
+vim.opt.showtabline = 0
+
 -- columns
-vim.opt.foldcolumn = "2"
+vim.opt.foldcolumn = "1"
 vim.opt.signcolumn = "yes:2"
+
 -- undo
 vim.opt.undofile = true
 vim.opt.undodir = os.getenv("HOME") .. "/.cache/nvim/undodir"
@@ -38,6 +42,18 @@ vim.g.loaded_netrwPlugin = 1
 -- leaders
 vim.g.mapleader = " "
 vim.g.maplocalleader = "\\"
+
+-- diff
+vim.g.diffopt = table.concat({
+  "internal",
+  "indent-heuristic",
+  "algorithm:patience",
+  "linematch:60",
+  "inline:word",
+  "context:3",
+  "filler",
+  "closeoff",
+}, ",")
 
 -- indent guides
 vim.g.indent_guides_guide_size = 1
