@@ -6,20 +6,23 @@ lsp.util.default_config.capabilities = vim.tbl_deep_extend(
   require("cmp_nvim_lsp").default_capabilities()
 )
 
---==============================
+--====================
 --== LANGUAGE SERVERS
---==============================
+--====================
 
--- TODO may be better to call ruff through pylsp? check if there are conflicts here
+--\______
+-- PYTHON
+--/‾‾‾‾‾‾
+
 vim.lsp.config("pylsp", {
   settings = {
     pylsp = {
       plugins = {
-        autopep8 = { enabled = false, maxLineLength = 1000000 },
-        flake8 = { enabled = false, maxLineLength = 1000000, select = {} },
-        pycodestyle = { enabled = false, maxLineLength = 100000, select = {} },
-        yapf = { enabled = false, maxLineLength = 100000 },
-        pyflakes = { enabled = false, maxLineLength = 100000, select = {} },
+        autopep8 = { enabled = false },
+        flake8 = { enabled = false },
+        pycodestyle = { enabled = false },
+        yapf = { enabled = false },
+        pyflakes = { enabled = false },
         mccabe = { enabled = false },
         rope = { enabled = true },
         preload = { enabled = false },
@@ -28,13 +31,20 @@ vim.lsp.config("pylsp", {
     },
   },
 })
--- lsp.ruff.setup({})
--- lsp.ty.setup({})
 
--- C/C++
--- lsp.clangd.setup({})
+vim.lsp.config("ruff", {
+  settings = {
+    ruff = {
+      enable_formatting = true,
+      enable_diagnostics = true,
+    },
+  },
+})
 
+--\___
 -- LUA
+--/‾‾‾
+
 vim.lsp.config("lua_ls", {
   settings = {
     Lua = {
@@ -62,6 +72,3 @@ vim.lsp.config("lua_ls", {
     },
   },
 })
-
--- XML
--- lsp.lemminx.setup({})

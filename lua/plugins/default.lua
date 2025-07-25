@@ -34,6 +34,19 @@ return {
 
   --- *** USABILITY ENHANCEMENTS *** ---
   -- GENERAL UTILITIES
+  {
+    "folke/snacks.nvim",
+    opts = {
+      input = {
+        enabled = true,
+        win = {
+          relative = "cursor",
+          anchor = "NW",
+          row = 1,
+        },
+      },
+    },
+  },
   { "m4xshen/autoclose.nvim" },
   { "numToStr/Comment.nvim" },
   { "kshenoy/vim-signature" },
@@ -61,22 +74,13 @@ return {
   -- telescope
   {
     "nvim-telescope/telescope.nvim",
-    dependencies = { "nvim-lua/plenary.nvim" },
-    opts = {
-      defaults = {
-        file_ignore_patterns = {
-          -- python
-          "site%-packages/.*%.py$",
-          ".*/?build/.*%.py$",
-        },
-      },
+    dependencies = {
+      "nvim-lua/plenary.nvim",
+      { "nvim-telescope/telescope-fzf-native.nvim", build = "make" },
     },
+    config = require("plugins.opts.telescope"),
   },
   { "nvim-telescope/telescope-ui-select.nvim", opts = {} },
-  {
-    "nvim-telescope/telescope-fzf-native.nvim",
-    build = "cmake -S. -Bbuild -DCMAKE_BUILD_TYPE=Release && cmake --build build --config Release",
-  },
   {
     "nvim-tree/nvim-tree.lua",
     opts = {
@@ -96,7 +100,13 @@ return {
     },
   },
   -- jumping around
-  { "kwkarlwang/bufjump.nvim", opts = {} },
+  {
+    "kwkarlwang/bufjump.nvim",
+    opts = {
+      -- forward_key = "<F13>",
+      -- backward_key = "<F14>",
+    },
+  },
 
   -- SESSIONS AND SIMILAR
   {
@@ -133,9 +143,9 @@ return {
   {
     "rcarriga/nvim-dap-ui",
     dependencies = { "mfussenegger/nvim-dap", "nvim-neotest/nvim-nio" },
-    -- TODO this might be a dumb way of doing this? that or use explicit `setup` for everyone
-    opts = require("plugins.opts.dapui"),
+    config = function() require("plugins.opts.dapui")() end,
   },
+  { "williamboman/nvim-dap-virtual-text" },
   {
     "nvim-neotest/neotest",
     dependencies = {
@@ -162,7 +172,12 @@ return {
     "folke/trouble.nvim",
     cmd = "Trouble",
     opts = {
-      position = "right",
+      win = {
+        position = "right", -- position of the trouble window
+        size = { -- height of the trouble window
+          width = 80, -- width of the trouble window
+        },
+      },
     },
     keys = {
       {
@@ -208,7 +223,14 @@ return {
   { "stevearc/conform.nvim", opts = {} },
 
   -- TREESITTER
-  { "nvim-treesitter/nvim-treesitter", opts = { additional_vim_regex_highlighting = false } },
+  {
+    "nvim-treesitter/nvim-treesitter",
+    dependencies = {
+      "nvim-treesitter/nvim-treesitter-textobjects",
+    },
+    opts = { additional_vim_regex_highlighting = false },
+    build = ":TSUpdate",
+  },
 
   -- COMPLETIONS
   {
@@ -219,83 +241,16 @@ return {
     build = "make install_jsregexp",
   },
   { "saadparwaiz1/cmp_luasnip" },
+  { "hrsh7th/cmp-cmdline", dependencies = "hrsh7th/nvim-cmp", event = "CmdlineEnter" },
   {
     "hrsh7th/nvim-cmp",
     dependencies = {
       "hrsh7th/cmp-nvim-lsp",
       "hrsh7th/cmp-buffer",
       "hrsh7th/cmp-path",
+      "hrsh7th/cmp-cmdline",
     },
-    config = function()
-      local cmp = require("cmp")
-      local luasnip = require("luasnip")
-      vim.opt.completeopt = { "menu", "menuone", "noselect" }
-      -- TODO consider adding the "has_words_before" fix from the readme
-      local custom_mapping = {
-        -- use tab to cycle through completions
-        ["<A-Tab>"] = cmp.mapping.complete(),
-        ["<Tab>"] = cmp.mapping(function(fallback)
-          if cmp.visible() then
-            cmp.select_next_item()
-          elseif luasnip.expand_or_jumpable() then
-            luasnip.expand_or_jump()
-          else
-            fallback()
-          end
-        end, { "i", "s" }),
-        ["<S-Tab>"] = cmp.mapping(function(fallback)
-          if cmp.visible() then
-            cmp.select_prev_item()
-          elseif luasnip.jumpable(-1) then
-            luasnip.jump(-1)
-          else
-            fallback()
-          end
-        end, { "i", "s" }),
-        ["<CR>"] = cmp.mapping.confirm({ select = true }),
-      }
-
-      cmp.setup({
-        snippet = {
-          expand = function(args) require("luasnip").lsp_expand(args.body) end,
-        },
-        mapping = cmp.mapping.preset.insert(custom_mapping),
-        sources = cmp.config.sources({
-          { name = "copilot" },
-          {
-            name = "nvim_lsp",
-            entry_filter = function(entry, ctx)
-              local label = entry:get_insert_text()
-              -- Filter out dunder methods
-              if label:match("^__.*__$") then return false end
-              return true
-            end,
-          },
-          { name = "luasnip" },
-          { name = "buffer" },
-          { name = "path" },
-          { name = "avante" },
-        }),
-        experimental = { ghost_text = true },
-      })
-      -- Use buffer source for `/` and `?` (if you enabled `native_menu`, this won't work anymore).
-      -- TODO fix autocomplete breaking here (tab starts to insert ^)
-      cmp.setup.cmdline({ "/", "?" }, {
-        mapping = cmp.mapping.preset.cmdline(),
-        sources = {
-          { name = "buffer" },
-        },
-      })
-      -- Use cmdline & path source for ':' (if you enabled `native_menu`, this won't work anymore).
-      cmp.setup.cmdline(":", {
-        mapping = cmp.mapping.preset.insert(custom_mapping),
-        sources = cmp.config.sources({
-          { name = "cmdline" },
-          { name = "path" },
-        }),
-        matching = { disallow_symbol_nonprefix_matching = false },
-      })
-    end,
+    config = function() require("plugins.opts.cmp")() end,
   },
 
   -- AI
@@ -424,6 +379,38 @@ return {
       "williamboman/mason.nvim",
       "mfussenegger/nvim-dap",
       "jay-babu/mason-nvim-dap.nvim",
+    },
+  },
+  {
+    "nwiizo/cargo.nvim",
+    build = "cargo build --release",
+    config = function()
+      require("cargo").setup({
+        float_window = true,
+        window_width = 0.8,
+        window_height = 0.8,
+        border = "rounded",
+        auto_close = true,
+        close_timeout = 5000,
+      })
+    end,
+    ft = { "rust" },
+    cmd = {
+      "CargoBench",
+      "CargoBuild",
+      "CargoClean",
+      "CargoDoc",
+      "CargoNew",
+      "CargoRun",
+      "CargoRunTerm",
+      "CargoTest",
+      "CargoUpdate",
+      "CargoCheck",
+      "CargoClippy",
+      "CargoAdd",
+      "CargoRemove",
+      "CargoFmt",
+      "CargoFix",
     },
   },
   {

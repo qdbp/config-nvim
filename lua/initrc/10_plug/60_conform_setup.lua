@@ -7,7 +7,7 @@ end
 conform.setup({
   formatters_by_ft = {
     lua = { "stylua" },
-    java = { "mvn_format" },
+    -- java = { "mvn_format" },
     rust = { "rustfmt" },
   },
   format_on_save = function(bufnr)
@@ -20,10 +20,10 @@ conform.setup({
     }
   end,
   formatters = {
-    mvn_format = {
-      command = "nmxmvn",
-      args = { "formatter:format" },
-    },
+    -- mvn_format = {
+    --   command = "nmxmvn",
+    --   args = { "formatter:format" },
+    -- },
     {
       command = "rustfmt",
       args = { "--emit", "stdout" }, -- stdin→stdout = fast diff

@@ -1,8 +1,31 @@
--- prettify the LSP “hover” window
-vim.lsp.handlers["textDocument/hover"] = vim.lsp.with(vim.lsp.handlers.hover, {
-  border = "rounded", -- try "single", "double", "shadow", or even a custom border table
-  max_width = 80, -- wrap at 80 chars
-  max_height = 40, -- don’t let it grow taller than 40 lines
-  winblend = 5, -- gentle transparency
-  focusable = false, -- don’t steal focus
-})
+-- prevent aerial/nvim-tree from fighting each other
+-- -- 1) Disable automatic equalizing
+-- vim.opt.equalalways = false
+--   (so Vim stops making all splits the same size whenever you open/close one) :contentReference[oaicite:0]{index=0}
+
+-- 2) Pin both side-panels to a constant width
+-- 2a) Configure nvim-tree
+-- require("nvim-tree").setup({
+--   view = {
+--     width = 30,
+--     side = "left",
+--   },
+-- })
+--
+-- -- 2b) Configure aerial
+-- require("aerial").setup({
+--   layout = {
+--     placement = "edge", -- open at far right
+--     default_direction = "right",
+--     width = 30, -- exact 30 cols
+--     min_width = 30,
+--     max_width = 30,
+--     preserve_equality = false, -- don’t re-equalize when content changes
+--   },
+-- })
+-- local grp = vim.api.nvim_create_augroup("fix-sidebars", { clear = true })
+-- vim.api.nvim_create_autocmd("FileType", {
+--   group = grp,
+--   pattern = { "NvimTree", "aerial" },
+--   callback = function() vim.opt_local.winfixwidth = true end,
+-- })

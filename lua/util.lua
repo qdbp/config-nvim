@@ -50,4 +50,16 @@ function M.print_table(v, indent)
   end
 end
 
+---here we go again! implementing the same thing as everyone else!
+---@param tbl table
+---@param val any
+---@return integer|nil
+function M.indexof(tbl, val)
+  --- separate handling for tables and lists... sigh...
+  for i, v in ipairs(tbl) do
+    if v == val then return i end
+  end
+  return nil
+end
+
 return M

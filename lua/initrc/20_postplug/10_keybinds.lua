@@ -8,16 +8,7 @@ vim.api.nvim_create_autocmd("LspAttach", {
   desc = "LSP actions",
   callback = function()
     -- Displays hover information about the symbol under the cursor
-    vks(
-      "n",
-      "gk",
-      function()
-        vim.lsp.buf.hover({
-          border = "single",
-          winblend = 10,
-        })
-      end
-    )
+    vks("n", "gk", function() vim.lsp.buf.hover({ border = "single" }) end)
     vks({ "n", "i" }, "<F1>", vim.lsp.buf.signature_help)
 
     -- Shift+<F6>
@@ -221,3 +212,5 @@ if require("nvim-tree.api") then
   -- pass to setup along with your other options
   require("nvim-tree").setup({ on_attach = nvim_tree_keymap_onattach })
 end
+
+-- COPILOT CHAT

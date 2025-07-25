@@ -13,7 +13,6 @@ ml.setup({
     -- lua
     "lua_ls",
     -- python
-    -- "basedpyright",
     "pylsp",
     "ruff",
     "ty",
